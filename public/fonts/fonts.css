@@ -1,0 +1,30 @@
+@font-face {
+    font-family: 'Carlinson';
+    font-weight: bold;
+    font-style: normal;
+    src: url('./Carlinson.ttf');
+}
+
+@font-face {
+    font-family: 'Floriana';
+    font-weight: 400;
+    font-style: normal;
+    src: url('./Floriana.otf');
+    word-spacing: 48px;
+}
+
+@font-face {
+    font-family: 'Roseland';
+    font-weight: 400;
+    font-style: normal;
+    src: url('./Roseland.ttf');
+    word-spacing: 48px;
+}
+
+@font-face {
+    font-family: 'Gecade';
+    font-weight: 400;
+    font-style: normal;
+    src: url('./Gecade.ttf');
+    word-spacing: 48px;
+}

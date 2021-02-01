@@ -1,8 +1,16 @@
-import React from 'react'
+import { ThemeProvider } from '@material-ui/core/styles';
+import React, {useEffect} from 'react'
+import Home from './pages/home';
+import theme from './theme';
 
-const App = () => {
+const App = (props) => {
+    useEffect(() => {
+        document.body.style.backgroundColor = '#e9eaed';
+    });
     return(
-        <h1>HELLO WORLD !!</h1>
+        <ThemeProvider theme={theme}>
+            <Home {...props} />
+        </ThemeProvider>
     )
 }
 
