@@ -1,5 +1,6 @@
 import { Button, Grid, Paper, TextField, Typography } from '@material-ui/core';
 import React, { useState } from 'react'
+import { vigenereAutoKeyEnc, vigenereAutoKeyDec  } from '../../services/vigenereAutokey';
 import { vigenereStandardDec, vigenereStandardEnc } from '../../services/vigenereStandard';
 import { getMenu, removeNonAlphabetic } from '../../utils';
 import styles from './styles';
@@ -23,16 +24,46 @@ const AlphabetForm = ({algorithm}) => {
     }
 
     const encrypt = () => {
+        var cipherText
+        switch (algorithm) {
+            case '0':
+                cipherText = vigenereStandardEnc(state.plain, state.key)
+                break;
+            
+            case '2':
+                cipherText = vigenereAutoKeyEnc(state.plain, state.key)
+                break;
+
+            default:
+                cipherText = ''
+                break;
+        }
+
         setState({
             ...state,
-            cipher: vigenereStandardEnc(state.plain, state.key)
+            cipher: cipherText
         })
     }
 
     const decrypt = () => {
+        var plainText
+        switch (algorithm) {
+            case '0':
+                plainText = vigenereStandardDec(state.cipher, state.key)
+                break;
+            
+            case '2':
+                plainText = vigenereAutoKeyDec(state.cipher, state.key)
+                break;
+
+            default:
+                plainText = ''
+                break;
+        }
+
         setState({
             ...state,
-            plain: vigenereStandardDec(state.cipher, state.key)
+            plain: plainText
         })
     }
 
@@ -44,13 +75,13 @@ const AlphabetForm = ({algorithm}) => {
             PLAIN       : <PLAIN>
             CIPHER      : <CIPHER>
         */
-        var text = "ALGORITHM\t: "+menu[state.algorithm];
+        var text = "ALGORITHM\t: "+menu[algorithm];
         text += "\nKEY\t\t: "+state.key;
         text += "\nPLAIN\t\t: "+state.plain;
         text += "\nCIPHER\t\t: "+state.cipher;
 
         //GENERATE FILENAME
-        var filename = menu[state.algorithm]+".txt";
+        var filename = menu[algorithm]+".txt";
 
         //CREATING DOWNLOAD FILE
         var element = document.createElement('a');
