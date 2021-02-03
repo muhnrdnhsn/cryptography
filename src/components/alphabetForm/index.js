@@ -1,6 +1,7 @@
 import { Button, Grid, Paper, TextField, Typography } from '@material-ui/core';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { vigenereAutoKeyEnc, vigenereAutoKeyDec  } from '../../services/vigenereAutokey';
+import { vigenereFullDec, vigenereFullEnc } from '../../services/vigenereFull';
 import { vigenereStandardDec, vigenereStandardEnc } from '../../services/vigenereStandard';
 import { getMenu, removeNonAlphabetic } from '../../utils';
 import styles from './styles';
@@ -8,6 +9,15 @@ import styles from './styles';
 const AlphabetForm = ({algorithm}) => {
     const classes = styles();
     const menu = getMenu();
+
+    useEffect(()=>{
+        setState({
+            cipher: '',
+            plain: '',
+            key: '',
+            algorithm: algorithm
+        })
+    }, [algorithm])
 
     const [state, setState] = useState({
         cipher: '',
@@ -30,6 +40,10 @@ const AlphabetForm = ({algorithm}) => {
                 cipherText = vigenereStandardEnc(state.plain, state.key)
                 break;
             
+            case '1':
+                cipherText = vigenereFullEnc(state.plain, state.key)
+                break;
+
             case '2':
                 cipherText = vigenereAutoKeyEnc(state.plain, state.key)
                 break;
@@ -52,6 +66,10 @@ const AlphabetForm = ({algorithm}) => {
                 plainText = vigenereStandardDec(state.cipher, state.key)
                 break;
             
+            case '1':
+                plainText = vigenereFullDec(state.cipher, state.key)
+                break;
+                
             case '2':
                 plainText = vigenereAutoKeyDec(state.cipher, state.key)
                 break;
