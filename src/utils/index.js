@@ -21,6 +21,13 @@ export const removeNonAlphabetic = (input) => {
     return input.replace(/[^a-z]/gi, '')
 }
 
+export const getOnlyPositive = (number) => {
+    if(number > 0){
+        return number
+    }
+    return '';
+}
+
 export const alphabetSubsCipherEnc = (plainChar, key)=> {
     //I.S PLAINCHAR AND KEY ARE DEFINE
     //F.S RETURN A CHAR AFTER SUBSTITUTE ENCRYPTION PROCCES
