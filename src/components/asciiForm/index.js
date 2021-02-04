@@ -70,7 +70,7 @@ const AsciiForm = ({algorithm}) => {
             {
                 state.method === 'text' &&
                 <Grid item>
-                    <AlphabetForm/>
+                    <AlphabetForm algorithm={algorithm}/>
                 </Grid>
             }
                 

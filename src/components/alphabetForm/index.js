@@ -2,6 +2,7 @@ import { Button, Grid, Paper, TextField, Typography } from '@material-ui/core';
 import React, { useState, useEffect } from 'react'
 import { playfairDec, playfairEnc } from '../../services/playfair';
 import { vigenereAutoKeyEnc, vigenereAutoKeyDec  } from '../../services/vigenereAutokey';
+import { vigenereExtendedEnc ,vigenereExtendedDec } from '../../services/vigenereExtended';
 import { vigenereFullDec, vigenereFullEnc } from '../../services/vigenereFull';
 import { vigenereStandardDec, vigenereStandardEnc } from '../../services/vigenereStandard';
 import { getMenu, removeNonAlphabetic } from '../../utils';
@@ -34,6 +35,13 @@ const AlphabetForm = ({algorithm}) => {
         })
     }
 
+    const handleChangeExt = (e) => {
+        setState({
+            ...state,
+            [e.target.name]: e.target.value
+        })
+    }
+
     const encrypt = () => {
         var cipherText
         switch (algorithm) {
@@ -47,6 +55,10 @@ const AlphabetForm = ({algorithm}) => {
 
             case '2':
                 cipherText = vigenereAutoKeyEnc(state.plain, state.key)
+                break;
+
+            case '3':
+                cipherText = vigenereExtendedEnc(state.plain, state.key)
                 break;
 
             case '4':
@@ -79,6 +91,9 @@ const AlphabetForm = ({algorithm}) => {
                 plainText = vigenereAutoKeyDec(state.cipher, state.key)
                 break;
 
+            case '3':
+                plainText = vigenereExtendedDec(state.cipher, state.key)
+                break;
             
             case '4':
                 plainText = playfairDec(state.cipher, state.key)
@@ -135,66 +150,142 @@ const AlphabetForm = ({algorithm}) => {
 
     return(
         <Grid container spacing={2} direction="column">
-            <Grid item>
-                <Paper className={(state.cipher && state.plain) ? classes.disabledPaper : classes.paper}>
-                    <TextField
-                        id="key"
-                        label="Key"
-                        multiline
-                        rows={3}
-                        variant="outlined"
-                        fullWidth
-                        onChange={(e)=>{handleChange(e)}}
-                        inputProps={{
-                            name: 'key'
-                        }}
-                        disabled={state.cipher !== '' && state.plain !== ''}
-                        value={state.key}
-                    />
-                    <Typography variant="caption">Input is automatically converted to uppercase and only accepts alphabetic input</Typography>
-                </Paper>
-            </Grid>
+
+            {
+                state.algorithm !=='3' &&
+                <Grid item>
+                    <Paper className={(state.cipher && state.plain) ? classes.disabledPaper : classes.paper}>
+                        <TextField
+                            id="key"
+                            label="Key"
+                            multiline
+                            rows={3}
+                            variant="outlined"
+                            fullWidth
+                            onChange={(e)=>{handleChange(e)}}
+                            inputProps={{
+                                name: 'key'
+                            }}
+                            disabled={state.cipher !== '' && state.plain !== ''}
+                            value={state.key}
+                        />
+                        <Typography variant="caption">Input is automatically converted to uppercase and only accepts alphabetic input</Typography>
+                    </Paper>
+                </Grid>
+            }
+
+            {
+                state.algorithm ==='3' &&
+                <Grid item>
+                    <Paper className={(state.cipher && state.plain) ? classes.disabledPaper : classes.paper}>
+                        <TextField
+                            id="key"
+                            label="Key"
+                            multiline
+                            rows={3}
+                            variant="outlined"
+                            fullWidth
+                            onChange={(e)=>{handleChangeExt(e)}}
+                            inputProps={{
+                                name: 'key'
+                            }}
+                            disabled={state.cipher !== '' && state.plain !== ''}
+                            value={state.key}
+                        />
+                    </Paper>
+                </Grid>
+            }
+
+            {
+                state.algorithm !== '3' &&
+                <Grid item>
+                    <Paper className={state.cipher === '' ? classes.paper : classes.disabledPaper}>
+                        <TextField
+                            id="plaintext"
+                            label="Plain Text"
+                            multiline
+                            rows={5}
+                            variant="outlined"
+                            fullWidth
+                            disabled={state.cipher !== ''}
+                            onChange={(e)=>{handleChange(e)}}
+                            inputProps={{
+                                name: 'plain'
+                            }}
+                            value={state.plain}
+                        />
+                        <Typography variant="caption">Input is automatically converted to uppercase and only accepts alphabetic input</Typography>
+                    </Paper>
+                </Grid>
+            }
+
+            {
+                state.algorithm === '3' &&
+                <Grid item>
+                    <Paper className={state.cipher === '' ? classes.paper : classes.disabledPaper}>
+                        <TextField
+                            id="plaintext"
+                            label="Plain Text"
+                            multiline
+                            rows={5}
+                            variant="outlined"
+                            fullWidth
+                            disabled={state.cipher !== ''}
+                            onChange={(e)=>{handleChangeExt(e)}}
+                            inputProps={{
+                                name: 'plain'
+                            }}
+                            value={state.plain}
+                        />
+                    </Paper>
+                </Grid>
+            }
+
+            {
+                state.algorithm !=='3' &&
+                <Grid item>
+                    <Paper className={state.plain === '' ? classes.paper : classes.disabledPaper}>
+                        <TextField
+                            id="ciphertext"
+                            label="Cipher Text"
+                            multiline
+                            rows={5}
+                            variant="outlined"
+                            fullWidth
+                            disabled={state.plain !== ''}
+                            onChange={(e)=>{handleChange(e)}}
+                            inputProps={{
+                                name: 'cipher'
+                            }}
+                            value={state.cipher}
+                        />
+                        <Typography variant="caption">Input is automatically converted to uppercase and only accepts alphabetic input</Typography>
+                    </Paper>
+                </Grid>
+            }
+
+            {
+                state.algorithm ==='3' &&
+                <Grid item>
+                    <Paper className={state.plain === '' ? classes.paper : classes.disabledPaper}>
+                        <TextField
+                            id="ciphertext"
+                            label="Cipher Text"
+                            multiline
+                            rows={5}
+                            variant="outlined"
+                            fullWidth
+                            disabled={state.plain !== ''}
+                            onChange={(e)=>{handleChangeExt(e)}}
+                            inputProps={{
+                                name: 'cipher'
+                            }}
+                            value={state.cipher}
+                        />
+                    </Paper>
+                </Grid>
+            }
             
-            <Grid item>
-                <Paper className={state.cipher === '' ? classes.paper : classes.disabledPaper}>
-                    <TextField
-                        id="plaintext"
-                        label="Plain Text"
-                        multiline
-                        rows={5}
-                        variant="outlined"
-                        fullWidth
-                        disabled={state.cipher !== ''}
-                        onChange={(e)=>{handleChange(e)}}
-                        inputProps={{
-                            name: 'plain'
-                        }}
-                        value={state.plain}
-                    />
-                    <Typography variant="caption">Input is automatically converted to uppercase and only accepts alphabetic input</Typography>
-                </Paper>
-            </Grid>
-
-            <Grid item>
-                <Paper className={state.plain === '' ? classes.paper : classes.disabledPaper}>
-                    <TextField
-                        id="ciphertext"
-                        label="Cipher Text"
-                        multiline
-                        rows={5}
-                        variant="outlined"
-                        fullWidth
-                        disabled={state.plain !== ''}
-                        onChange={(e)=>{handleChange(e)}}
-                        inputProps={{
-                            name: 'cipher'
-                        }}
-                        value={state.cipher}
-                    />
-                    <Typography variant="caption">Input is automatically converted to uppercase and only accepts alphabetic input</Typography>
-
-                </Paper>
-            </Grid>
 
             <Grid item>
                 <Grid container spacing={2} direction="row" justify="center">
