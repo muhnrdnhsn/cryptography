@@ -102,7 +102,7 @@ const Home = () => {
                                 {  
                                     state.algorithm !== '' && state.algorithm === '3' &&
                                     <Grid item>
-                                        <AsciiForm/>
+                                        <AsciiForm algorithm={state.algorithm}/>
                                     </Grid>
                                 }
                                 

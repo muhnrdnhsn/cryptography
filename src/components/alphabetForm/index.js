@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { affineEnc, affineDec } from '../../services/afine';
 import { playfairDec, playfairEnc } from '../../services/playfair';
 import { vigenereAutoKeyEnc, vigenereAutoKeyDec  } from '../../services/vigenereAutokey';
+import { vigenereExtendedEnc, vigenereExtendedDec } from '../../services/vigenereExtended';
 import { vigenereFullDec, vigenereFullEnc } from '../../services/vigenereFull';
 import { vigenereStandardDec, vigenereStandardEnc } from '../../services/vigenereStandard';
 import { getMenu, getOnlyPositive, removeNonAlphabetic } from '../../utils';
@@ -34,10 +35,17 @@ const AlphabetForm = ({algorithm}) => {
 
     const handleChange = (e) => {
         if(e.target.name !== 'm' && e.target.name !== 'shifting'){
-            setState({
-                ...state,
-                [e.target.name]: removeNonAlphabetic(e.target.value).toUpperCase()
-            })
+            if(algorithm === '3'){
+                setState({
+                    ...state,
+                    [e.target.name]: e.target.value
+                })
+            }else{
+                setState({
+                    ...state,
+                    [e.target.name]: removeNonAlphabetic(e.target.value).toUpperCase()
+                })
+            }
         }else{
             setState({
                 ...state,
@@ -59,6 +67,10 @@ const AlphabetForm = ({algorithm}) => {
 
             case '2':
                 cipherText = vigenereAutoKeyEnc(state.plain, state.key)
+                break;
+
+            case '3':
+                cipherText = vigenereExtendedEnc(state.plain, state.key)
                 break;
 
             case '4':
@@ -95,6 +107,10 @@ const AlphabetForm = ({algorithm}) => {
                 plainText = vigenereAutoKeyDec(state.cipher, state.key)
                 break;
             
+            case '3':
+                plainText = vigenereExtendedDec(state.cipher, state.key)
+                break;
+
             case '4':
                 plainText = playfairDec(state.cipher, state.key)
                 break;
@@ -181,7 +197,7 @@ const AlphabetForm = ({algorithm}) => {
                                 disabled={state.cipher !== '' && state.plain !== ''}
                                 value={state.key}
                             />
-                            <Typography variant="caption">Input is automatically converted to uppercase and only accepts alphabetic input</Typography>
+                            {algorithm !== '3' && <Typography variant="caption">Input is automatically converted to uppercase and only accepts alphabetic input</Typography>}
                         </>
                         :
                         <>
@@ -242,7 +258,7 @@ const AlphabetForm = ({algorithm}) => {
                         }}
                         value={state.plain}
                     />
-                    <Typography variant="caption">Input is automatically converted to uppercase and only accepts alphabetic input</Typography>
+                    {algorithm !== '3' && <Typography variant="caption">Input is automatically converted to uppercase and only accepts alphabetic input</Typography>}
                 </Paper>
             </Grid>
 
@@ -262,7 +278,7 @@ const AlphabetForm = ({algorithm}) => {
                         }}
                         value={state.cipher}
                     />
-                    <Typography variant="caption">Input is automatically converted to uppercase and only accepts alphabetic input</Typography>
+                    {algorithm !== '3' && <Typography variant="caption">Input is automatically converted to uppercase and only accepts alphabetic input</Typography>}
 
                 </Paper>
             </Grid>
