@@ -1,5 +1,6 @@
 import { Button, Grid, Paper, TextField, Typography } from '@material-ui/core';
 import React, { useState, useEffect } from 'react'
+import { playfairDec, playfairEnc } from '../../services/playfair';
 import { vigenereAutoKeyEnc, vigenereAutoKeyDec  } from '../../services/vigenereAutokey';
 import { vigenereFullDec, vigenereFullEnc } from '../../services/vigenereFull';
 import { vigenereStandardDec, vigenereStandardEnc } from '../../services/vigenereStandard';
@@ -48,6 +49,10 @@ const AlphabetForm = ({algorithm}) => {
                 cipherText = vigenereAutoKeyEnc(state.plain, state.key)
                 break;
 
+            case '4':
+                cipherText = playfairEnc(state.plain, state.key)
+                break;
+
             default:
                 cipherText = ''
                 break;
@@ -74,6 +79,11 @@ const AlphabetForm = ({algorithm}) => {
                 plainText = vigenereAutoKeyDec(state.cipher, state.key)
                 break;
 
+            
+            case '4':
+                plainText = playfairDec(state.cipher, state.key)
+                break;
+                
             default:
                 plainText = ''
                 break;
