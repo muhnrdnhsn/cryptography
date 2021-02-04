@@ -1,10 +1,11 @@
 import { Button, Grid, Paper, TextField, Typography } from '@material-ui/core';
 import React, { useState, useEffect } from 'react'
+import { affineEnc, affineDec } from '../../services/afine';
 import { playfairDec, playfairEnc } from '../../services/playfair';
 import { vigenereAutoKeyEnc, vigenereAutoKeyDec  } from '../../services/vigenereAutokey';
 import { vigenereFullDec, vigenereFullEnc } from '../../services/vigenereFull';
 import { vigenereStandardDec, vigenereStandardEnc } from '../../services/vigenereStandard';
-import { getMenu, removeNonAlphabetic } from '../../utils';
+import { getMenu, getOnlyPositive, removeNonAlphabetic } from '../../utils';
 import styles from './styles';
 
 const AlphabetForm = ({algorithm}) => {
@@ -16,6 +17,8 @@ const AlphabetForm = ({algorithm}) => {
             cipher: '',
             plain: '',
             key: '',
+            m: '',
+            shifting: '',
             algorithm: algorithm
         })
     }, [algorithm])
@@ -24,14 +27,23 @@ const AlphabetForm = ({algorithm}) => {
         cipher: '',
         plain: '',
         key: '',
+        m: '',
+        shifting: '',
         algorithm: algorithm
     })
 
     const handleChange = (e) => {
-        setState({
-            ...state,
-            [e.target.name]: removeNonAlphabetic(e.target.value).toUpperCase()
-        })
+        if(e.target.name !== 'm' && e.target.name !== 'shifting'){
+            setState({
+                ...state,
+                [e.target.name]: removeNonAlphabetic(e.target.value).toUpperCase()
+            })
+        }else{
+            setState({
+                ...state,
+                [e.target.name]: getOnlyPositive(e.target.value)
+            }) 
+        }
     }
 
     const encrypt = () => {
@@ -51,6 +63,10 @@ const AlphabetForm = ({algorithm}) => {
 
             case '4':
                 cipherText = playfairEnc(state.plain, state.key)
+                break;
+
+            case '5':
+                cipherText = affineEnc(state.plain, state.m, state.shifting)
                 break;
 
             default:
@@ -78,12 +94,15 @@ const AlphabetForm = ({algorithm}) => {
             case '2':
                 plainText = vigenereAutoKeyDec(state.cipher, state.key)
                 break;
-
             
             case '4':
                 plainText = playfairDec(state.cipher, state.key)
                 break;
-                
+
+            case '5':
+                plainText = affineDec(state.cipher, state.m, state.shifting)
+                break;
+
             default:
                 plainText = ''
                 break;
@@ -104,7 +123,12 @@ const AlphabetForm = ({algorithm}) => {
             CIPHER      : <CIPHER>
         */
         var text = "ALGORITHM\t: "+menu[algorithm];
-        text += "\nKEY\t\t: "+state.key;
+        if(algorithm === '5'){
+            text += "\nM\t\t: "+state.m;
+            text += '\nB\t\t:'+state.shifting;
+        }else{
+            text += "\nKEY\t\t: "+state.key;
+        }
         text += "\nPLAIN\t\t: "+state.plain;
         text += "\nCIPHER\t\t: "+state.cipher;
 
@@ -129,7 +153,10 @@ const AlphabetForm = ({algorithm}) => {
             ...state,
             cipher: '',
             plain: '',
-            key: ''
+            key: '',
+            m: '',
+            shifting: '',
+            algorithm: algorithm
         })
     }
 
@@ -137,21 +164,65 @@ const AlphabetForm = ({algorithm}) => {
         <Grid container spacing={2} direction="column">
             <Grid item>
                 <Paper className={(state.cipher && state.plain) ? classes.disabledPaper : classes.paper}>
-                    <TextField
-                        id="key"
-                        label="Key"
-                        multiline
-                        rows={3}
-                        variant="outlined"
-                        fullWidth
-                        onChange={(e)=>{handleChange(e)}}
-                        inputProps={{
-                            name: 'key'
-                        }}
-                        disabled={state.cipher !== '' && state.plain !== ''}
-                        value={state.key}
-                    />
-                    <Typography variant="caption">Input is automatically converted to uppercase and only accepts alphabetic input</Typography>
+                    {
+                        algorithm !== '5' ?
+                        <>
+                            <TextField
+                                id="key"
+                                label="Key"
+                                multiline
+                                rows={3}
+                                variant="outlined"
+                                fullWidth
+                                onChange={(e)=>{handleChange(e)}}
+                                inputProps={{
+                                    name: 'key'
+                                }}
+                                disabled={state.cipher !== '' && state.plain !== ''}
+                                value={state.key}
+                            />
+                            <Typography variant="caption">Input is automatically converted to uppercase and only accepts alphabetic input</Typography>
+                        </>
+                        :
+                        <>
+                            <Grid container direction="column" spacing={2}>
+                                <Grid item>
+                                    <TextField
+                                        id="param-m"
+                                        label="Parameter: m"
+                                        variant="outlined"
+                                        fullWidth
+                                        type="number"
+                                        onChange={(e)=>{handleChange(e)}}
+                                        inputProps={{
+                                            name: 'm'
+                                        }}
+                                        disabled={state.cipher !== '' && state.plain !== ''}
+                                        value={state.m}
+                                    />
+                                </Grid>
+                                <Grid item>
+                                    <TextField
+                                        id="param-shifting"
+                                        label="Parameter: Shifting"
+                                        variant="outlined"
+                                        fullWidth
+                                        type="number"
+                                        onChange={(e)=>{handleChange(e)}}
+                                        inputProps={{
+                                            name: 'shifting'
+                                        }}
+                                        disabled={state.cipher !== '' && state.plain !== ''}
+                                        value={state.shifting}
+                                    />
+                                </Grid>
+                            </Grid>
+                            <Typography variant="caption">Input is  only accepts positive number    input</Typography>
+                        </>
+
+
+                    }
+                    
                 </Paper>
             </Grid>
             
@@ -199,19 +270,19 @@ const AlphabetForm = ({algorithm}) => {
             <Grid item>
                 <Grid container spacing={2} direction="row" justify="center">
                     {
-                        state.plain && state.key && !state.cipher &&
+                        state.plain  && !state.cipher && (state.key || (state.m && state.shifting)) &&
                         <Grid item xs={3}>
                             <Button variant="contained" color="primary" fullWidth onClick={()=>encrypt()}>ENCRYPT</Button>
                         </Grid>
                     }
                     {
-                        state.cipher && state.key && !state.plain &&
+                        state.cipher  && !state.plain && (state.key || (state.m && state.shifting)) &&
                         <Grid item xs={3}>
                             <Button variant="contained" color="primary" fullWidth onClick={()=>decrypt()}>DECRYPT</Button>
                         </Grid>
                     }
                     {
-                        state.cipher && state.key && state.plain &&
+                        state.cipher && state.plain && (state.key || (state.m && state.shifting)) &&
                         <Grid item xs={3}>
                             <Button variant="contained" color="primary" fullWidth onClick={()=>reset()}>RESET</Button>
                         </Grid>
