@@ -1,5 +1,6 @@
 import { Button, Grid, Paper, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Typography } from '@material-ui/core';
 import React, { useState } from 'react'
+import { vigenereExtendedDec, vigenereExtendedEnc } from '../../services/vigenereExtended';
 import AlphabetForm from '../alphabetForm';
 import styles from './styles';
 
@@ -12,44 +13,121 @@ const AsciiForm = ({algorithm}) => {
         key: '',
         method: 'text',
         plainFile: "",
-        cipherFile: ""
+        cipherFile: "",
+        algorithm: algorithm
     })
 
     const handleChange = (e) => {
+        if(e.target.name === 'plainFile' || e.target.name === 'cipherFile'){
+            setState({
+                ...state,
+                [e.target.name]: e.target.files[0]
+            })
+        }else{
+            setState({
+                ...state,
+                [e.target.name]: e.target.value
+            })
+        }
+        
+    }
+
+    const reset = () => {
         setState({
             ...state,
-            [e.target.name]: e.target.value
+            cipher: '',
+            plain: '',
+            key: '',
+            method: 'file',
+            plainFile: "",
+            cipherFile: "",
+            algorithm: algorithm
         })
     }
 
-    const encrypt = () => {
+    const handleClick = () => {
         if(state.cipherFile){
-            setState({
-                ...state,
-                plainFile: '',
-                cipherFile: '',
-                key: ''
-            })
-        }else{
-            console.log(algorithm, state.plainFile, state.key);
+            if(state.plain){
+                reset()
+            }else{
+                decrypt()
+            }
+        }else if(state.plainFile){
+            if(state.cipher){
+                reset()
+            }else{
+                encrypt()
+            }
         }
     }
 
-    const decrypt = () => {
-        if(state.plainFile){
-            setState({
-                ...state,
-                plainFile: '',
-                cipherFile: '',
-                key: ''
-            })
-        }else{
-            console.log(algorithm, state.cipherFile, state.key);
-        }
+    const convertFile = (file) => {
+        return new Promise((resolve, reject) => {
+            const fileReader = new FileReader();
+            fileReader.readAsArrayBuffer(file);
+
+            fileReader.onload = () => {
+                resolve(fileReader.result);
+            }
+
+            fileReader.onerror = (error) => {
+                reject(error);
+            }
+        })
+    }
+
+    const encrypt = async () => {
+        const base64 = await convertFile(state.plainFile);
+        const cipher = vigenereExtendedEnc(new Uint8Array(base64), state.key, 'file');
+        setState({
+            ...state,
+            cipher: cipher
+        })
+        
+    }
+
+    const decrypt = async () => {
+        const base64 = await convertFile(state.cipherFile);
+        const plain = vigenereExtendedDec(new Uint8Array(base64), state.key, 'file');
+        setState({
+            ...state,
+            plain: plain
+        })
     }
 
     const download = () => {
+        var uint8
+        var file
+        var newFileName
         
+        if(state.cipher){
+            uint8 = state.cipher
+            file = state.plainFile
+            newFileName = 'enc_' + file.name
+
+        }else{
+            uint8 = state.plain
+            file = state.cipherFile
+            newFileName = file.name
+        }
+
+        var data = new Int8Array(uint8).buffer;
+
+        var newFile = new Blob([data], { type: file.type });
+        if (window.navigator.msSaveOrOpenBlob)
+            window.navigator.msSaveOrOpenBlob(newFile, newFileName);
+        else {
+            var a = document.createElement("a"),
+                url = URL.createObjectURL(newFile);
+            a.href = url;
+            a.download = newFileName;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function () {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 0);
+        } 
     }
 
     return(
@@ -126,7 +204,7 @@ const AsciiForm = ({algorithm}) => {
                                 </Grid>
 
                                 <Grid item >
-                                    <Typography>{state.plainFile ? ('File name: ' + state.plainFile.split(/\\/)[2]) : 'No file selected'}</Typography>
+                                    <Typography>{state.plainFile ? ('File name: ' + state.plainFile.name) : 'No file selected'}</Typography>
                                 </Grid> 
                             
                             </Grid>
@@ -164,7 +242,7 @@ const AsciiForm = ({algorithm}) => {
                                 </Grid>
 
                                 <Grid item >
-                                    <Typography>{state.cipherFile ? ('File name: ' + state.cipherFile.split(/\\/)[2]) : 'No file selected'}</Typography>
+                                    <Typography>{state.cipherFile ? ('File name: ' + state.cipherFile.name) : 'No file selected'}</Typography>
                                 </Grid> 
                             
                             </Grid>
@@ -176,21 +254,21 @@ const AsciiForm = ({algorithm}) => {
                             {
                                 state.plainFile && state.key &&
                                 <Grid item xs={3}>
-                                    <Button variant="contained" color="primary" fullWidth onClick={()=>encrypt()}>
-                                        {state.cipherFile ? 'RESET' : "ENCRYPT"}
+                                    <Button variant="contained" color="primary" fullWidth onClick={()=>handleClick()}>
+                                        {state.cipher ? 'RESET' : "ENCRYPT"}
                                     </Button>
                                 </Grid>
                             }
                             {
                                 state.cipherFile && state.key &&
                                 <Grid item xs={3}>
-                                    <Button variant="contained" color="primary" fullWidth onClick={()=>decrypt()}>
-                                        {state.plainFile ? 'RESET' : 'DECRYPT'}
+                                    <Button variant="contained" color="primary" fullWidth onClick={()=>handleClick()}>
+                                        {state.plain ? 'RESET' : 'DECRYPT'}
                                     </Button>
                                 </Grid>
                             }
                             {
-                                state.plainFile && state.cipherFile &&
+                                ((state.plainFile && state.cipher) || (state.cipherFile && state.plain)) &&
                                 <Grid item xs={3}>
                                     <Button variant="contained" color="primary" fullWidth onClick={()=>download()}>DOWNLOAD</Button>
                                 </Grid>
