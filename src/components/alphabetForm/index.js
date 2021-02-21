@@ -70,7 +70,7 @@ const AlphabetForm = ({algorithm}) => {
                 break;
 
             case '3':
-                cipherText = vigenereExtendedEnc(state.plain, state.key)
+                cipherText = vigenereExtendedEnc(state.plain, state.key, 'text')
                 break;
 
             case '4':
@@ -108,7 +108,7 @@ const AlphabetForm = ({algorithm}) => {
                 break;
             
             case '3':
-                plainText = vigenereExtendedDec(state.cipher, state.key)
+                plainText = vigenereExtendedDec(state.cipher, state.key, 'text')
                 break;
 
             case '4':

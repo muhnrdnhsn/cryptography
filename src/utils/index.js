@@ -73,43 +73,29 @@ export const alphabetSubsCipherDec = (cipherChar, key)=> {
     return plainChar
 }
 
-export const asciiSubCipherEnc = (plainChar, key) => {
+export const asciiSubCipherEnc = (plain, key) => {
     //I.S PLAINCHAR AND KEY ARE DEFINE
     //F.S RETURN A CHAR AFTER SUBSTITUTE ENCRYPTION PROCCES
     //PLAINCHAR IS AN ANY ASCII CHAR
     //KEY IS AN ANY NUMBER
     //SWIPE PLAINCHAR RIGHT KEY TIMES
 
-    //CONVERT CHAR TO ASCII CODE
-    let plainIdx = plainChar.charCodeAt(0)
-
     //SWIPE PLAINIDX RIGHT KEY TIMES
-    let cipherIdx = (plainIdx + key) % 256;
+    let cipher = (((plain + key) % 256) + 256) % 256;
 
-    //CONVERT ASCII CODE TO CHAR
-    let cipherChar = String.fromCharCode(cipherIdx)
-
-    return cipherChar
+    return cipher
 }
 
-export const asciiSubCipherDec = (cipherChar, key) => {
+export const asciiSubCipherDec = (cipher, key) => {
     //I.S CIPHERCHAR AND KEY ARE DEFINE
     //F.S RETURN A CHAR AFTER SUBSTITUTE DECRYPTION PROCCES
     //CIPHERCHAR IS AN ANY ASCII CHAR
     //KEY IS AN ANY NUMBER
     //SWIPE CIPHERCHAR LEFT KEY TIMES
 
-    //CONVERT CHAR TO ASCII CODE
-    let cipherIdx = cipherChar.charCodeAt(0)
 
     //SWIPE CIPHERCHAR LEFT KEY TIMES
-    let plainIdx = (cipherIdx - key) % 256;
-    if(plainIdx < 0){
-        plainIdx = 256 - ((Math.abs(cipherIdx-key))%256)
-    }
+    let plain = (((cipher - key) % 256) + 256) % 256;
 
-    //CONVERT ASCII CODE TO CHAR
-    let plainChar = String.fromCharCode(plainIdx)
-
-    return plainChar
+    return plain
 }
