@@ -1,5 +1,6 @@
 import { Button, Grid, Paper, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Typography, Divider } from '@material-ui/core';
 import React, { useState } from 'react'
+import { rc4 } from '../../services/rc4';
 import { vigenereExtendedDec, vigenereExtendedEnc } from '../../services/vigenereExtended';
 import AlphabetForm from '../alphabetForm';
 import styles from './styles';
@@ -89,7 +90,12 @@ const AsciiForm = ({algorithm}) => {
 
     const encrypt = async () => {
         const base64 = await convertFile(state.plainFile);
-        const cipher = vigenereExtendedEnc(new Uint8Array(base64), state.key, 'file');
+        var cipher
+        if(state.algorithm === 3){
+            cipher = vigenereExtendedEnc(new Uint8Array(base64), state.key, 'file');
+        }else if(state.algorithm === 6){
+            cipher = rc4(new Uint8Array(base64), state.key);
+        }
         setState({
             ...state,
             cipher: cipher
@@ -99,7 +105,12 @@ const AsciiForm = ({algorithm}) => {
 
     const decrypt = async () => {
         const base64 = await convertFile(state.cipherFile);
-        const plain = vigenereExtendedDec(new Uint8Array(base64), state.key, 'file');
+        var plain = ''
+        if(state.algorithm === 3){
+            plain = vigenereExtendedDec(new Uint8Array(base64), state.key, 'file');
+        }else if(state.algorithm === 6){
+            plain = rc4(new Uint8Array(base64), state.key)
+        }
         setState({
             ...state,
             plain: plain
