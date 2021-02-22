@@ -13,7 +13,7 @@ const Home = () => {
     
 
     const [state, setState] = useState({
-        algorithm: 0    
+        algorithm: 0  
     })
 
     const changeAlgorithm = (value) => {
@@ -78,16 +78,13 @@ const Home = () => {
                                                 <AlphabetForm algorithm={state.algorithm}/>
                                                 :
                                                 (
-                                                    state.algorithm === 3
+                                                    state.algorithm === 3 ||
+                                                    state.algorithm === 6 ||
+                                                    state.algorithm === 7
                                                 ) ?
                                                 <AsciiForm algorithm={state.algorithm}/>
                                                 :
-                                                (
-                                                    state.algorithm === 6 || state.algorithm === 7
-                                                ) ?
-                                                <Typography>STREAM</Typography>
-                                                :
-                                                <Typography>OTHER</Typography>
+                                                <Typography></Typography>
                                             
                                             }
                                         </Grid>
