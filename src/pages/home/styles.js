@@ -1,45 +1,28 @@
 import { makeStyles } from "@material-ui/styles";
 
 const styles = makeStyles((theme) => ({
-    formControl: {
-        minWidth: 240,
-        backgroundColor: '#fff'
-    },
-    mainContainer: {
-        
-        padding: 20,
-        [theme.breakpoints.up('sm')]: {
-            width: `calc(100% - 240px)`,
-            marginLeft: 240,
-        },
-        [theme.breakpoints.down('xs')]: {
-            marginTop: 80,
-        },
-        
-    },
-    flexCenter: {
-        display: 'flex',
-        justifyContent: 'center',
-        marginBottom: 20
-    },
-    titleContainer: {
+    container: {
         backgroundColor: '#fff',
-        padding: 10,
-        borderRadius: 5
-    },
-    paper: {
-        padding: 10
-    },
-    footer: {
-        position: 'fixed',
+        position: 'absolute',
+        top: 70,
         bottom: 0,
-        width: `calc(100% - 240px)`,
-        textAlign: 'center',
-        marginBottom: 15,
-        marginTop: 10,
-        color: '#fff'
+        [theme.breakpoints.down('xs')]: {
+            width: '100%'
+        },
+        [theme.breakpoints.between('sm', 'md')]: {
+            width: '66.7%'
+        },
+        [theme.breakpoints.up('md')]: {
+            width: '50%'
+        },
+        
+    },
+    formControl: {
+        minWidth: '100%',
+    },
+    p20: {
+        padding: 20
     }
 
 }))
-
 export default styles;

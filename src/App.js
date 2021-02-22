@@ -5,7 +5,8 @@ import theme from './theme';
 
 const App = (props) => {
     useEffect(() => {
-        document.body.style.backgroundColor = '#e9eaed';
+        document.body.style.backgroundColor = '#abdee6';
+        document.body.style.backgroundImage = `url('lock.png')`;
     });
     return(
         <ThemeProvider theme={theme}>

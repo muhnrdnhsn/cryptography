@@ -1,26 +1,25 @@
 
-import { CssBaseline, Grid, Hidden, FormControl, InputLabel, Select, Typography, Divider, Paper } from '@material-ui/core';
+import { CssBaseline, Grid, Hidden, FormControl, Typography, Divider, Toolbar, FormLabel, NativeSelect } from '@material-ui/core';
 import React, { useState } from 'react'
 import Appbar from '../../components/appbar';
 import AlphabetForm from '../../components/alphabetForm';
-import Drawer from '../../components/drawer';
 import styles from './styles';
-import { getMenu } from '../../utils';
 import AsciiForm from '../../components/asciiForm';
+// import { getMenu } from '../../utils';
+// import AsciiForm from '../../components/asciiForm';
 
 const Home = () => {
     const classes = styles();
     
-    const menus = getMenu();
 
     const [state, setState] = useState({
-        algorithm: ''
+        algorithm: 0    
     })
 
     const changeAlgorithm = (value) => {
         setState({
             ...state,
-            algorithm: value
+            algorithm: parseInt(value, 10)
         })
     }
 
@@ -29,86 +28,77 @@ const Home = () => {
     return (
         <CssBaseline>
             <Grid container direction="column">
-
-                {/* APPBAR HIDDEN WHEN MD OR MORE */}
-                <Grid item > 
-                    <Hidden smUp implementation="css">
-                        <Appbar/>
-                    </Hidden>
-                </Grid>
-
                 <Grid item>
-                    <Grid container direction="row">
-
-                        {/* DRAWER HIDDEN WHEN XS OR LESS*/}
-                        <Hidden xsDown implementation="css">
-                            <Drawer menu={menus} changeAlgorithm={changeAlgorithm} currentAlgorithm={state.algorithm}/>
-                        </Hidden>
-
-                        {/* MAIN CONTENT */}
-                        <Grid item xs={12} className={classes.mainContainer}>
-                            <Grid container spacing={2} direction="column">
-
-                                {/* PENGGANTI DRAWER */}
-                                <Hidden smUp implementation="css">
-                                    <Grid item className={classes.flexCenter}>
-                                        <FormControl variant="outlined"  className={classes.formControl}>
-                                            <InputLabel htmlFor="outlined-algo">Algorithm</InputLabel>
-                                            <Select
-                                                native
-                                                value={state.algorithm}
-                                                onChange={(e) => changeAlgorithm(e.target.value)}
-                                                label="Algorithm"
-                                                inputProps={{
-                                                    name: 'algorithm',
-                                                    id: 'outlined-algo',
-                                                }}
-                                            >
-                                                {
-                                                    state.algorithm === '' &&
-                                                    <option aria-label="None" value="" />
-                                                }
-                                                {menus.map((value,index) => (
-                                                    <option value={index} key={index}>{value}</option>
-                                                ))}
-                                            </Select>
-                                        </FormControl>
-                                    </Grid>
-                                    <Divider style={{marginBottom: 15}}/>
-                                </Hidden>
-                                
-                                {
-                                    state.algorithm !== '' &&
-                                    <Grid item>
-                                        <Paper className={classes.paper}>
-                                            <Hidden xsDown implementation="css">
-                                                <Typography variant='h4'>{menus[state.algorithm]}</Typography>
-                                            </Hidden>
-                                            <Hidden smUp implementation="css">
-                                                <Typography variant='h5'>{menus[state.algorithm]}</Typography>
-                                            </Hidden>
-                                        </Paper>
-                                    </Grid>
-                                }
-
-                                
-                                {  
-                                    state.algorithm !== '' && state.algorithm !== '3' &&
-                                    <Grid item>
-                                        <AlphabetForm algorithm={state.algorithm}/>
-                                    </Grid>
-                                }
-
-                                {  
-                                    state.algorithm !== '' && state.algorithm === '3' &&
-                                    <Grid item>
-                                        <AsciiForm algorithm={state.algorithm}/>
-                                    </Grid>
-                                }
-                                
+                    <Appbar>
+                        <Toolbar>
+                            <Typography>CRYPTOONS</Typography>
+                        </Toolbar>
+                    </Appbar>
+                </Grid>
+                <Grid item>
+                    <Grid container direction="row" justify="space-between">
+                        <Hidden xsDown>
+                            <Grid item xs={false} sm={2} md={3}>
                             </Grid>
-
+                        </Hidden>
+                        
+                        <Grid item xs={12} sm={8} md={6}>
+                            <Grid container direction="column" justify="space-between" >
+                                <Grid item className={classes.container} >
+                                    <Grid container direction="column">
+                                        <Grid item className={classes.p20}>
+                                            <FormControl variant="standard" className={classes.formControl}>
+                                                <FormLabel component="legend">Algorithm</FormLabel>
+                                                <NativeSelect inputProps={{id: "algorithm"}} onChange={(e)=>changeAlgorithm(e.target.value)} value={state.algorithm}>
+                                                    <optgroup label="Classic Cryptography">
+                                                        <option value="0">Vigenere Cipher Standard</option>
+                                                        <option value="1">Full Vigenere Cipher</option>
+                                                        <option value="2">Auto-key Vigenere Cipher</option>
+                                                        <option value="3">Extended Vigenere Cipher</option>
+                                                        <option value="4">Playfair Cipher</option>
+                                                        <option value="5">Affine Cipher </option>
+                                                    </optgroup>
+                                                    <optgroup label="Stream Cipher">
+                                                        <option value="6">RC4</option>
+                                                        <option value="7">Modified RC4</option>
+                                                    </optgroup>
+                                                </NativeSelect>
+                                            </FormControl>
+                                        </Grid>
+                                        <Divider/>
+                                        <Grid item className={classes.p20}>
+                                            {
+                                                (
+                                                    state.algorithm === 0 ||
+                                                    state.algorithm === 1 ||
+                                                    state.algorithm === 2 ||
+                                                    state.algorithm === 4 ||
+                                                    state.algorithm === 5
+                                                ) ?
+                                                <AlphabetForm algorithm={state.algorithm}/>
+                                                :
+                                                (
+                                                    state.algorithm === 3
+                                                ) ?
+                                                <AsciiForm algorithm={state.algorithm}/>
+                                                :
+                                                (
+                                                    state.algorithm === 6 || state.algorithm === 7
+                                                ) ?
+                                                <Typography>STREAM</Typography>
+                                                :
+                                                <Typography>OTHER</Typography>
+                                            
+                                            }
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
                         </Grid>
+                        <Hidden xsDown>
+                            <Grid item xs={false} sm={2} md={3}>
+                            </Grid>
+                        </Hidden>
                     </Grid>
                 </Grid>
             </Grid>
