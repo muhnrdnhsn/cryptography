@@ -1,5 +1,5 @@
 
-import { CssBaseline, Grid, Hidden, FormControl, Select, Typography, Divider, Toolbar, ListSubheader, MenuItem, FormLabel } from '@material-ui/core';
+import { CssBaseline, Grid, Hidden, FormControl, Typography, Divider, Toolbar, FormLabel, NativeSelect } from '@material-ui/core';
 import React, { useState } from 'react'
 import Appbar from '../../components/appbar';
 import AlphabetForm from '../../components/alphabetForm';
@@ -13,13 +13,13 @@ const Home = () => {
     
 
     const [state, setState] = useState({
-        algorithm: ''
+        algorithm: 0    
     })
 
     const changeAlgorithm = (value) => {
         setState({
             ...state,
-            algorithm: value
+            algorithm: parseInt(value, 10)
         })
     }
 
@@ -49,18 +49,20 @@ const Home = () => {
                                         <Grid item className={classes.p20}>
                                             <FormControl variant="standard" className={classes.formControl}>
                                                 <FormLabel component="legend">Algorithm</FormLabel>
-                                                <Select inputProps={{id: "algorithm"}} onChange={(e)=>changeAlgorithm(e.target.value)} value={state.algorithm}>
-                                                    <ListSubheader>Classic Cryptography</ListSubheader>
-                                                    <MenuItem value={0}>Vigenere Cipher Standard</MenuItem>
-                                                    <MenuItem value={1}>Full Vigenere Cipher</MenuItem>
-                                                    <MenuItem value={2}>Auto-key Vigenere Cipher</MenuItem>
-                                                    <MenuItem value={3}>Extended Vigenere Cipher</MenuItem>
-                                                    <MenuItem value={4}>Playfair Cipher</MenuItem>
-                                                    <MenuItem value={5}>Affine Cipher</MenuItem>
-                                                    <ListSubheader>Stream Cipher</ListSubheader>
-                                                    <MenuItem value={6}>RC4</MenuItem>
-                                                    <MenuItem value={7}>Modified RC4</MenuItem>
-                                                </Select>
+                                                <NativeSelect inputProps={{id: "algorithm"}} onChange={(e)=>changeAlgorithm(e.target.value)} value={state.algorithm}>
+                                                    <optgroup label="Classic Cryptography">
+                                                        <option value="0">Vigenere Cipher Standard</option>
+                                                        <option value="1">Full Vigenere Cipher</option>
+                                                        <option value="2">Auto-key Vigenere Cipher</option>
+                                                        <option value="3">Extended Vigenere Cipher</option>
+                                                        <option value="4">Playfair Cipher</option>
+                                                        <option value="5">Affine Cipher </option>
+                                                    </optgroup>
+                                                    <optgroup label="Stream Cipher">
+                                                        <option value="6">RC4</option>
+                                                        <option value="7">Modified RC4</option>
+                                                    </optgroup>
+                                                </NativeSelect>
                                             </FormControl>
                                         </Grid>
                                         <Divider/>
@@ -80,7 +82,12 @@ const Home = () => {
                                                 ) ?
                                                 <AsciiForm algorithm={state.algorithm}/>
                                                 :
-                                                <Typography>ABC</Typography>
+                                                (
+                                                    state.algorithm === 6 || state.algorithm === 7
+                                                ) ?
+                                                <Typography>STREAM</Typography>
+                                                :
+                                                <Typography>OTHER</Typography>
                                             
                                             }
                                         </Grid>
