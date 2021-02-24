@@ -1,5 +1,7 @@
-import { Button, Grid, Paper, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Typography } from '@material-ui/core';
+import { Button, Grid, Paper, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Typography, Divider } from '@material-ui/core';
 import React, { useState } from 'react'
+import { modifiedrc4 } from '../../services/modifiedRC4';
+import { rc4 } from '../../services/rc4';
 import { vigenereExtendedDec, vigenereExtendedEnc } from '../../services/vigenereExtended';
 import AlphabetForm from '../alphabetForm';
 import styles from './styles';
@@ -11,7 +13,8 @@ const AsciiForm = ({algorithm}) => {
         cipher: '',
         plain: '',
         key: '',
-        method: 'text',
+        type: 'text',
+        method: '',
         plainFile: "",
         cipherFile: "",
         algorithm: algorithm
@@ -22,6 +25,15 @@ const AsciiForm = ({algorithm}) => {
             setState({
                 ...state,
                 [e.target.name]: e.target.files[0]
+            })
+        }else if(e.target.name === 'method'){
+            setState({
+                ...state,
+                cipher: '',
+                plain: '',
+                method: e.target.value,
+                plainFile: "",
+                cipherFile: ""
             })
         }else{
             setState({
@@ -38,7 +50,8 @@ const AsciiForm = ({algorithm}) => {
             cipher: '',
             plain: '',
             key: '',
-            method: 'file',
+            type: 'text',
+            method: '',
             plainFile: "",
             cipherFile: "",
             algorithm: algorithm
@@ -78,7 +91,26 @@ const AsciiForm = ({algorithm}) => {
 
     const encrypt = async () => {
         const base64 = await convertFile(state.plainFile);
-        const cipher = vigenereExtendedEnc(new Uint8Array(base64), state.key, 'file');
+        var cipher
+
+        switch (state.algorithm) {
+            case 3:
+                cipher = vigenereExtendedEnc(new Uint8Array(base64), state.key, 'file')
+                break;
+
+            case 6:
+                cipher = rc4(new Uint8Array(base64), state.key, 'file')
+                break;
+
+            case 7:
+                cipher = modifiedrc4(new Uint8Array(base64), state.key, 'file')
+                break;
+
+            default:
+                cipher = ''
+                break;
+        }
+
         setState({
             ...state,
             cipher: cipher
@@ -88,7 +120,24 @@ const AsciiForm = ({algorithm}) => {
 
     const decrypt = async () => {
         const base64 = await convertFile(state.cipherFile);
-        const plain = vigenereExtendedDec(new Uint8Array(base64), state.key, 'file');
+        var plain = ''
+        switch (state.algorithm) {
+            case 3:
+                plain = vigenereExtendedDec(new Uint8Array(base64), state.key, 'file')
+                break;
+
+            case 6:
+                plain = rc4(new Uint8Array(base64), state.key, 'file')
+                break;
+
+            case 7:
+                plain = modifiedrc4(new Uint8Array(base64), state.key, 'file')
+                break;
+
+            default:
+                plain = ''
+                break;
+        }
         setState({
             ...state,
             plain: plain
@@ -135,8 +184,8 @@ const AsciiForm = ({algorithm}) => {
             <Grid item>
                 <Paper className={classes.paper}>
                     <FormControl component="fieldset">
-                        <FormLabel component="legend">Method</FormLabel>
-                        <RadioGroup aria-label="method" row value={state.method} name="method" onChange={handleChange}>
+                        <FormLabel component="legend">Input Type</FormLabel>
+                        <RadioGroup aria-label="type" row value={state.type} name="type" onChange={handleChange}>
                             <FormControlLabel value="text" control={<Radio />} label="Text" />
                             <FormControlLabel value="file" control={<Radio />} label="File" />
                         </RadioGroup>
@@ -146,17 +195,29 @@ const AsciiForm = ({algorithm}) => {
             </Grid>
             
             {
-                state.method === 'text' &&
+                state.type === 'text' &&
                 <Grid item>
                     <AlphabetForm algorithm={algorithm}/>
                 </Grid>
             }
-                
+
+            
             {
-                state.method === 'file' &&
+                state.type === 'file' &&
                 <>
-                    <Grid item>
-                        <Paper className={classes.paper}>
+                <Grid item>
+                    <FormLabel component="legend">Method</FormLabel>
+                    <FormControl>
+                        <RadioGroup aria-label="method" name="method" value={state.method} onChange={handleChange}>
+                            <FormControlLabel value="encrypt" control={<Radio />} label="Encrypt" />
+                            <FormControlLabel value="decrypt" control={<Radio />} label="Decrypt" />
+                        </RadioGroup>
+                    </FormControl>
+                </Grid>
+                <Divider/>
+                    {
+                        state.method &&
+                        <Grid item>
                             <TextField
                                 id="key"
                                 label="Key"
@@ -170,13 +231,12 @@ const AsciiForm = ({algorithm}) => {
                                 }}
                                 value={state.key}
                             />
-                        </Paper>
-                    </Grid>
-            
-                    <Grid item>
-                        <Paper className={state.cipherFile ? classes.disabledPaper : classes.paper}>
+                        </Grid>
+                    }
+                    {
+                        state.method === 'encrypt' &&
+                        <Grid item>
                             <Grid container direction="row" justify="space-between" alignItems="center">
-                            
                                 <Grid item xs={12}>
                                     <FormControl component="fieldset">
                                         <FormLabel component="legend">Plain File</FormLabel>
@@ -208,11 +268,11 @@ const AsciiForm = ({algorithm}) => {
                                 </Grid> 
                             
                             </Grid>
-                        </Paper>
-                    </Grid>
-
-                    <Grid item>
-                        <Paper className={state.plainFile ? classes.disabledPaper : classes.paper}>
+                        </Grid>
+                    }
+                    {
+                        state.method === 'decrypt' &&
+                        <Grid item>
                             <Grid container direction="row" justify="space-between" alignItems="center">
                             
                                 <Grid item xs={12}>
@@ -246,9 +306,11 @@ const AsciiForm = ({algorithm}) => {
                                 </Grid> 
                             
                             </Grid>
-                        </Paper>
-                    </Grid>
-            
+                        </Grid>
+                    }
+                    {
+                        state.method && <Divider/>
+                    }
                     <Grid item>
                         <Grid container spacing={2} direction="row" justify="center">
                             {
