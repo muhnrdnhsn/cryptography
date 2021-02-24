@@ -279,7 +279,13 @@ const AlphabetForm = ({algorithm}) => {
                     </>
                 }
                 {
-                    (state.algorithm !== 5 && state.algorithm !== 3 && state.method) &&
+                    (
+                        state.algorithm !== 5 && 
+                        state.algorithm !== 3 && 
+                        state.algorithm !== 6 && 
+                        state.algorithm !== 7 && 
+                        state.method
+                    ) &&
                     <Typography variant="caption">Alphabetic Only and Auto Convert into Uppercase</Typography>
                 }
                 {   
