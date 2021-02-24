@@ -1,6 +1,7 @@
 import { Button, Divider, FormControl, FormControlLabel, FormLabel, Grid, Radio, RadioGroup, TextField, Typography } from '@material-ui/core';
 import React, { useState, useEffect } from 'react'
 import { affineEnc, affineDec } from '../../services/afine';
+import { modifiedrc4 } from '../../services/modifiedRC4';
 import { playfairDec, playfairEnc } from '../../services/playfair';
 import { rc4 } from '../../services/rc4';
 import { vigenereAutoKeyEnc, vigenereAutoKeyDec  } from '../../services/vigenereAutokey';
@@ -55,7 +56,7 @@ const AlphabetForm = ({algorithm}) => {
                 [event.target.name]: getOnlyPositive(event.target.value)
             })
         }else{
-            if(state.algorithm === 3 || state.algorithm === 6){
+            if(state.algorithm === 3 || state.algorithm === 6 || state.algorithm === 7){
                 setState({
                     ...state,
                     [event.target.name]: event.target.value
@@ -100,6 +101,10 @@ const AlphabetForm = ({algorithm}) => {
                 cipherText = rc4(state.plain, state.key, 'text')
                 break;
 
+            case 7:
+            cipherText = modifiedrc4(state.plain, state.key, 'text')
+            break;
+
             default:
                 cipherText = ''
                 break;
@@ -141,6 +146,10 @@ const AlphabetForm = ({algorithm}) => {
 
             case 6:
                 plainText = rc4(state.cipher, state.key, 'text')
+                break;
+
+            case 7:
+                plainText = modifiedrc4(state.cipher, state.key, 'text')
                 break;
 
             default:
