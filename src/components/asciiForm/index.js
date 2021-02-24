@@ -1,5 +1,7 @@
 import { Button, Grid, Paper, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Typography, Divider } from '@material-ui/core';
 import React, { useState } from 'react'
+import { modifiedrc4 } from '../../services/modifiedRC4';
+import { rc4 } from '../../services/rc4';
 import { vigenereExtendedDec, vigenereExtendedEnc } from '../../services/vigenereExtended';
 import AlphabetForm from '../alphabetForm';
 import styles from './styles';
@@ -89,7 +91,26 @@ const AsciiForm = ({algorithm}) => {
 
     const encrypt = async () => {
         const base64 = await convertFile(state.plainFile);
-        const cipher = vigenereExtendedEnc(new Uint8Array(base64), state.key, 'file');
+        var cipher
+
+        switch (state.algorithm) {
+            case 3:
+                cipher = vigenereExtendedEnc(new Uint8Array(base64), state.key, 'file')
+                break;
+
+            case 6:
+                cipher = rc4(new Uint8Array(base64), state.key, 'file')
+                break;
+
+            case 7:
+                cipher = modifiedrc4(new Uint8Array(base64), state.key, 'file')
+                break;
+
+            default:
+                cipher = ''
+                break;
+        }
+
         setState({
             ...state,
             cipher: cipher
@@ -99,7 +120,24 @@ const AsciiForm = ({algorithm}) => {
 
     const decrypt = async () => {
         const base64 = await convertFile(state.cipherFile);
-        const plain = vigenereExtendedDec(new Uint8Array(base64), state.key, 'file');
+        var plain = ''
+        switch (state.algorithm) {
+            case 3:
+                plain = vigenereExtendedDec(new Uint8Array(base64), state.key, 'file')
+                break;
+
+            case 6:
+                plain = rc4(new Uint8Array(base64), state.key, 'file')
+                break;
+
+            case 7:
+                plain = modifiedrc4(new Uint8Array(base64), state.key, 'file')
+                break;
+
+            default:
+                plain = ''
+                break;
+        }
         setState({
             ...state,
             plain: plain

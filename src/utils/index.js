@@ -99,3 +99,25 @@ export const asciiSubCipherDec = (cipher, key) => {
 
     return plain
 }
+
+export const binary2dec = (binary) => {
+    //I.S.  binary is a binary string
+    //F.S.  a number that have a binary string like that
+    var dec = parseInt(binary, 2);
+
+    return(dec)
+}
+
+export const dec2binary = (dec, n_bits) => {
+    //I.S.  dec is a positive number
+    //F.S.  a n_bits binary string that represent that number
+
+    var binary = (dec >>> 0).toString(2)
+
+    if(n_bits){
+        binary = "0".repeat(n_bits).substr(binary.length) + binary   
+    }
+
+    return(binary)
+
+}
