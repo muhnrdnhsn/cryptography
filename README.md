@@ -7,3 +7,4 @@ https://cryptoons.herokuapp.com/
 1. Adding RC4
 2. Adding modifed RC4
 3. Renewal display
+4. Fix file encryption and decryption with Vigenere Extended Cipher
