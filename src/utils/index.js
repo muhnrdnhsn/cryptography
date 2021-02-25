@@ -4,7 +4,9 @@ const menus = [
     'Auto-key Vigenere Cipher',
     'Extended Vigenere Cipher',
     'Playfair Cipher',
-    'Affine Cipher'
+    'Affine Cipher',
+    'RC4',
+    'Modified RC4'
 ]
 
 export const getMenu = () => {
