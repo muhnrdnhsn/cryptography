@@ -4,6 +4,7 @@ import { affineEnc, affineDec } from '../../services/afine';
 import { modifiedrc4 } from '../../services/modifiedRC4';
 import { playfairDec, playfairEnc } from '../../services/playfair';
 import { rc4 } from '../../services/rc4';
+import { rsaencrypt, rsadecrypt } from '../../services/rsa';
 import { vigenereAutoKeyEnc, vigenereAutoKeyDec  } from '../../services/vigenereAutokey';
 import { vigenereExtendedEnc, vigenereExtendedDec } from '../../services/vigenereExtended';
 import { vigenereFullDec, vigenereFullEnc } from '../../services/vigenereFull';
@@ -56,7 +57,7 @@ const AlphabetForm = ({algorithm}) => {
                 [event.target.name]: getOnlyPositive(event.target.value)
             })
         }else{
-            if(state.algorithm === 3 || state.algorithm === 6 || state.algorithm === 7){
+            if(state.algorithm === 3 || state.algorithm === 6 || state.algorithm === 7 || state.algorithm === 9){
                 setState({
                     ...state,
                     [event.target.name]: event.target.value
@@ -70,7 +71,7 @@ const AlphabetForm = ({algorithm}) => {
         }
     }
 
-    const encrypy = () => {
+    const encrypt = () => {
         var cipherText
         switch (algorithm) {
             case 0:
@@ -105,16 +106,29 @@ const AlphabetForm = ({algorithm}) => {
                 cipherText = modifiedrc4(state.plain, state.key, 'text')
                 break;
 
+            case 9:
+                cipherText = rsaencrypt(state.plain, state.key)
+                break;
+
             default:
                 cipherText = ''
                 break;
         }
-        var cipher2 = cipherText.match(/.{0,5}/g).join(" ")
-        setState({
-            ...state,
-            cipher: cipherText,
-            cipher2: cipher2
-        })
+        if(algorithm === 9){
+            var cipher2 = cipherText.toString(16).match(/.{0,5}/g).join(" ");
+            setState({
+                ...state,
+                cipher: cipherText.toString(16),
+                cipher2: cipher2
+            })
+        }else{
+            var cipher3 = cipherText.match(/.{0,5}/g).join(" ")
+            setState({
+                ...state,
+                cipher: cipherText,
+                cipher2: cipher3
+            })
+        }
     }
 
     const decrypt = () => {
@@ -152,6 +166,10 @@ const AlphabetForm = ({algorithm}) => {
                 plainText = modifiedrc4(state.cipher, state.key, 'text')
                 break;
 
+            case 9:
+                plainText = rsadecrypt(state.cipher, state.key)
+                break;
+
             default:
                 plainText = ''
                 break;
@@ -181,7 +199,7 @@ const AlphabetForm = ({algorithm}) => {
             if(state.cipher){
                 reset()
             }else{
-                encrypy()
+                encrypt()
             }
         }else{
             if(state.plain){
@@ -208,8 +226,17 @@ const AlphabetForm = ({algorithm}) => {
            text += "\nKEY\t\t: "+state.key;
        }
        text += "\nPLAIN\t\t: "+state.plain;
-       text += "\nCIPHER\t\t: "+state.cipher;
-       text += "\nCIPHER\t\t: "+state.cipher2;
+       var bigInt = require("big-integer");
+       if(algorithm === 9){
+            text += "\nCIPHER-16Base\t\t: "+state.cipher;
+            text += "\nCIPHER-16Base\t\t: "+state.cipher2;
+           var cipher10base = bigInt(state.cipher, 16);
+           text += "\nCIPHER-10Base\t\t: "+cipher10base.toString();
+           text += "\nCIPHER-10Base\t\t: "+cipher10base.toString().match(/.{0,5}/g).join(" ");
+       }else{
+            text += "\nCIPHER\t\t: "+state.cipher;
+            text += "\nCIPHER\t\t: "+state.cipher2;
+       }
        //GENERATE FILENAME
        var filename = menu[algorithm]+".txt";
 
@@ -284,6 +311,7 @@ const AlphabetForm = ({algorithm}) => {
                         state.algorithm !== 3 && 
                         state.algorithm !== 6 && 
                         state.algorithm !== 7 && 
+                        state.algorithm !== 9 &&
                         state.method
                     ) &&
                     <Typography variant="caption">Alphabetic Only and Auto Convert into Uppercase</Typography>
