@@ -33,10 +33,8 @@ const GenerateForm = ({algorithm}) => {
 
         pairkeyrsa = rsapubprikey();
 
-        // Create string e,n using base-16
-        var pubkey = pairkeyrsa[1].toString(16) + "," + pairkeyrsa[0].toString(16);
-        // Create string d,n using base-16
-        var prikey = pairkeyrsa[2].toString(16) + "," + pairkeyrsa[0].toString(16);
+        var pubkey = pairkeyrsa[1].toString() + "," + pairkeyrsa[0].toString();
+        var prikey = pairkeyrsa[2].toString() + "," + pairkeyrsa[0].toString();
 
         var generated = true;
 
