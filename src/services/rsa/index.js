@@ -25,12 +25,45 @@ export const rsapubprikey = () => {
     return [n, e, d];
 }
 
-export const encrypt = (text, e, n) => {
+export const rsaencrypt = (text, key) => {
+    var textCodes = text
+        .split('')
+        .map(i => i.charCodeAt())
+        .join('');
 
+    var keyCodes = key
+        .split(',')
+
+    var e = bigInt(keyCodes[0]);
+    var n = bigInt(keyCodes[1]);
+
+    return bigInt(textCodes).modPow(e, n);
 }
 
-export const decrypt = (text, d, n) => {
+export const rsadecrypt = (text, key) => {
+    var keyCodes = key
+        .split(',')
 
+    var d = bigInt(keyCodes[0]);
+    var n = bigInt(keyCodes[1]);
+
+    var decrypted = bigInt(text).modPow(d, n);
+
+    const stringified = decrypted.toString();
+    let string = '';
+
+    for (let i = 0; i < stringified.length; i += 2){
+        let num = Number(stringified.substr(i, 2));
+
+        if (num <= 30){
+            string += String.fromCharCode(Number(stringified.substr(i, 3)));
+            i++;
+        }else{
+            string += String.fromCharCode(num);
+        }
+    }
+
+    return string;
 }
 
 // Generate a k bit(s) random prime number with (k)th bit is 1

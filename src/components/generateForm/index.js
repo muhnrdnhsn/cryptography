@@ -1,6 +1,6 @@
 import { Button, Grid, Typography } from '@material-ui/core';
 import React, { useState } from 'react';
-import { rsa, rsapubprikey } from '../../services/rsa/index';
+import { rsapubprikey } from '../../services/rsa/index';
 
 const GenerateForm = ({algorithm}) => {
 

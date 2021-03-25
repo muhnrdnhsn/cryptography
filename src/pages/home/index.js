@@ -63,9 +63,9 @@ const Home = () => {
                                                         <option value="6">RC4</option>
                                                         <option value="7">Modified RC4</option>
                                                     </optgroup>
-                                                    <optgroup label="Asimetric Cryptography">
+                                                    <optgroup label="RSA">
                                                         <option value="8">Public and Private Key</option>
-                                                        <option value="9">RSA</option>
+                                                        <option value="9">Encryption and Decryption</option>
                                                     </optgroup>
                                                 </NativeSelect>
                                             </FormControl>
@@ -85,7 +85,8 @@ const Home = () => {
                                                 (
                                                     state.algorithm === 3 ||
                                                     state.algorithm === 6 ||
-                                                    state.algorithm === 7
+                                                    state.algorithm === 7 ||
+                                                    state.algorithm === 9
                                                 ) ?
                                                 <AsciiForm algorithm={state.algorithm}/>
                                                 :

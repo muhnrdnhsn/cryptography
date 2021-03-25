@@ -7,7 +7,8 @@ const menus = [
     'Affine Cipher',
     'RC4',
     'Modified RC4',
-    'RSA'
+    'Public and Private Key',
+    'Encryption and Decryption'
 ]
 
 export const getMenu = () => {
