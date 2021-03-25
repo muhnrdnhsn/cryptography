@@ -6,7 +6,8 @@ const menus = [
     'Playfair Cipher',
     'Affine Cipher',
     'RC4',
-    'Modified RC4'
+    'Modified RC4',
+    'RSA'
 ]
 
 export const getMenu = () => {
@@ -121,5 +122,4 @@ export const dec2binary = (dec, n_bits) => {
     }
 
     return(binary)
-
 }

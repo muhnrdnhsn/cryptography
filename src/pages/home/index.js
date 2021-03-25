@@ -5,6 +5,7 @@ import Appbar from '../../components/appbar';
 import AlphabetForm from '../../components/alphabetForm';
 import styles from './styles';
 import AsciiForm from '../../components/asciiForm';
+import GenerateForm from '../../components/generateForm';
 // import { getMenu } from '../../utils';
 // import AsciiForm from '../../components/asciiForm';
 
@@ -62,6 +63,10 @@ const Home = () => {
                                                         <option value="6">RC4</option>
                                                         <option value="7">Modified RC4</option>
                                                     </optgroup>
+                                                    <optgroup label="Asimetric Cryptography">
+                                                        <option value="8">Public and Private Key</option>
+                                                        <option value="9">RSA</option>
+                                                    </optgroup>
                                                 </NativeSelect>
                                             </FormControl>
                                         </Grid>
@@ -83,6 +88,11 @@ const Home = () => {
                                                     state.algorithm === 7
                                                 ) ?
                                                 <AsciiForm algorithm={state.algorithm}/>
+                                                :
+                                                (
+                                                    state.algorithm === 8
+                                                ) ?
+                                                <GenerateForm algorithm={state.algorithm}/>
                                                 :
                                                 <Typography></Typography>
                                             

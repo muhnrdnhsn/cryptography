@@ -102,8 +102,8 @@ const AlphabetForm = ({algorithm}) => {
                 break;
 
             case 7:
-            cipherText = modifiedrc4(state.plain, state.key, 'text')
-            break;
+                cipherText = modifiedrc4(state.plain, state.key, 'text')
+                break;
 
             default:
                 cipherText = ''
