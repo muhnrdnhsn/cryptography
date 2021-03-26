@@ -4,8 +4,8 @@ var bigInt = require("big-integer")
 export const rsapubprikey = () => {
 
     // Generate random prime number p & q
-    var p = genprime(512);
-    var q = genprime(512);
+    var p = genprime(16);
+    var q = genprime(16);
 
     // Set variable n = p * q
     var n = p.times(q);
@@ -25,45 +25,50 @@ export const rsapubprikey = () => {
     return [n, e, d];
 }
 
-export const rsaencrypt = (text, key) => {
-    var textCodes = text
+export const rsaencrypt = (plain, keyE, keyN) => {
+    var textCodes = plain
         .split('')
-        .map(i => i.charCodeAt())
+        .map((i) => {
+            if(i.charCodeAt() > 9){
+                return i.charCodeAt()
+            }else{
+                return('0'+i.charCodeAt())
+            }
+        })
         .join('');
 
-    var keyCodes = key
-        .split(',')
+    var e = bigInt(keyE);
+    var n = bigInt(keyN);
 
-    var e = bigInt(keyCodes[0]);
-    var n = bigInt(keyCodes[1]);
+    var m = textCodes.match(/.{1,4}/g);
+    var c = m.map((i) => {
+        return(bigInt(i).mod(n).pow(e).mod(n))
+    }).join('')
 
-    return bigInt(textCodes).modPow(e, n);
+    return c;
 }
 
-export const rsadecrypt = (text, key) => {
-    var keyCodes = key
-        .split(',')
+export const rsadecrypt = (cipher, keyD, keyN) => {
+    var textCodes = cipher
+        .split('')
+        .map((i) => {
+            if(i.charCodeAt() > 9){
+                return i.charCodeAt()
+            }else{
+                return('0'+i.charCodeAt())
+            }
+        })
+        .join('');
 
-    var d = bigInt(keyCodes[0]);
-    var n = bigInt(keyCodes[1]);
+    var d = bigInt(keyD);
+    var n = bigInt(keyN);
 
-    var decrypted = bigInt(text).modPow(d, n);
+    var c = textCodes.match(/.{1,4}/g);
+    var m = c.map((i) => {
+        return(bigInt(i).mod(n).pow(d).mod(n))
+    }).join('')
 
-    const stringified = decrypted.toString();
-    let string = '';
-
-    for (let i = 0; i < stringified.length; i += 2){
-        let num = Number(stringified.substr(i, 2));
-
-        if (num <= 30){
-            string += String.fromCharCode(Number(stringified.substr(i, 3)));
-            i++;
-        }else{
-            string += String.fromCharCode(num);
-        }
-    }
-
-    return string;
+    return m
 }
 
 // Generate a k bit(s) random prime number with (k)th bit is 1

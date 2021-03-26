@@ -6,6 +6,7 @@ import AlphabetForm from '../../components/alphabetForm';
 import styles from './styles';
 import AsciiForm from '../../components/asciiForm';
 import GenerateForm from '../../components/generateForm';
+import RSAForm from '../../components/rsaForm';
 // import { getMenu } from '../../utils';
 // import AsciiForm from '../../components/asciiForm';
 
@@ -85,8 +86,7 @@ const Home = () => {
                                                 (
                                                     state.algorithm === 3 ||
                                                     state.algorithm === 6 ||
-                                                    state.algorithm === 7 ||
-                                                    state.algorithm === 9
+                                                    state.algorithm === 7 
                                                 ) ?
                                                 <AsciiForm algorithm={state.algorithm}/>
                                                 :
@@ -94,6 +94,11 @@ const Home = () => {
                                                     state.algorithm === 8
                                                 ) ?
                                                 <GenerateForm algorithm={state.algorithm}/>
+                                                :
+                                                (
+                                                    state.algorithm === 9
+                                                )?
+                                                <RSAForm algorithm={state.algorithm}/>
                                                 :
                                                 <Typography></Typography>
                                             

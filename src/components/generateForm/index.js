@@ -1,4 +1,4 @@
-import { Button, Grid, Typography } from '@material-ui/core';
+import { Button, Grid, TextField } from '@material-ui/core';
 import React, { useState } from 'react';
 import { rsapubprikey } from '../../services/rsa/index';
 
@@ -33,8 +33,8 @@ const GenerateForm = ({algorithm}) => {
 
         pairkeyrsa = rsapubprikey();
 
-        var pubkey = pairkeyrsa[1].toString() + "," + pairkeyrsa[0].toString();
-        var prikey = pairkeyrsa[2].toString() + "," + pairkeyrsa[0].toString();
+        var pubkey = pairkeyrsa[1].toString() + ", " + pairkeyrsa[0].toString();
+        var prikey = pairkeyrsa[2].toString() + ", " + pairkeyrsa[0].toString();
 
         var generated = true;
 
@@ -46,31 +46,27 @@ const GenerateForm = ({algorithm}) => {
         })
     }
 
-    const download = () => {
-        var pubkey = state.pubkey;
-        var prikey = state.prikey;
-        var pubkeyFileName = "cryptoons.pub";
-        var prikeyFileName = "cryptoons.pri";
+    const download = (type) => {
+        var content = state.pubkey;
+        var filename = "RSA.pub";
+
+        if(type === 'pri')
+        {
+            content = state.prikey
+            filename = "RSA.pri"
+        }
 
         //CREATING DOWNLOAD FILE
         var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(pubkey));
-        element.setAttribute('download', pubkeyFileName);
-
-        var element2 = document.createElement('a');
-        element2.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(prikey));
-        element2.setAttribute('download', prikeyFileName);
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+        element.setAttribute('download', filename);
 
         element.style.display = 'none';
-        element2.style.display = 'none';
         document.body.appendChild(element);
-        document.body.appendChild(element2);
 
         element.click();
-        element2.click();
 
         document.body.removeChild(element);
-        document.body.removeChild(element2);
     }
 
     return(
@@ -78,7 +74,39 @@ const GenerateForm = ({algorithm}) => {
             <Grid container spacing={2} direction="column" justify="center">
             {
                 (state.generated) &&
-                <Typography>{'Generating success!'}</Typography>
+                <>
+                    <Grid item>
+                        <TextField
+                            id="pubkey"
+                            label="Public Key"
+                            variant="outlined"
+                            fullWidth
+                            multiline
+                            // onChange={(e)=>{handleChange(e)}}
+                            inputProps={{
+                                name: 'pubkey'
+                            }}
+                            disabled
+                            value={state.pubkey}
+                            style={{marginTop: 10}}
+                        />
+                    </Grid>
+                    <Grid item>
+                        <TextField
+                            id="prikey"
+                            label="Private Key"
+                            variant="outlined"
+                            fullWidth
+                            multiline
+                            // onChange={(e)=>{handleChange(e)}}
+                            inputProps={{
+                                name: 'private'
+                            }}
+                            disabled
+                            value={state.prikey}
+                        />
+                    </Grid>
+                </>
             }
                 <Grid container spacing={2} direction="row" justify="center">
                     {
@@ -91,7 +119,13 @@ const GenerateForm = ({algorithm}) => {
                     {
                         (state.generated) &&
                         <Grid item xs={3}>
-                            <Button variant="contained" color="primary" fullWidth onClick={()=>download()}>DOWNLOAD</Button>
+                            <Button variant="contained" color="primary" fullWidth onClick={()=>download('pub')}>SAVE PUBKEY</Button>
+                        </Grid>
+                    }
+                    {
+                        (state.generated) &&
+                        <Grid item xs={3}>
+                            <Button variant="contained" color="primary" fullWidth onClick={()=>download('pri')}>SAVE PRIKEY</Button>
                         </Grid>
                     }
                 </Grid>
