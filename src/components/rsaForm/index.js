@@ -2,6 +2,7 @@ import { Button, Grid, Paper, TextField, FormControl, FormLabel, RadioGroup, For
 import React, { useState } from 'react'
 import { rsadecrypt, rsaencrypt } from '../../services/rsa';
 import styles from './styles';
+var bigIntConversion = require('bigint-conversion')
 
 const RSAForm = ({algorithm}) => {
     const classes = styles();
@@ -16,14 +17,19 @@ const RSAForm = ({algorithm}) => {
         keytype: "",
         keyFile: "",
         algorithm: algorithm,
-        content: ''
+        content: '',
+        contentFile: ''
     })
 
     const handleChange = async (e) => {
         if(e.target.name === 'contentFile'){
+            var content = await convertFile(e.target.files[0])
+            console.log(e.target.files[0].type)
+            var uint8 = new Uint8Array(content)
             setState({
                 ...state,
-                [e.target.name]: e.target.files[0]
+                [e.target.name]: e.target.files[0],
+                content: uint8
             })
         }else if(e.target.name === 'keyFile'){
             var keys = await readKeyFile(e.target.files[0])
@@ -82,27 +88,27 @@ const RSAForm = ({algorithm}) => {
 
     const handleClick = async () => {
         if(state.method === 'Encrypt'){
-            let result
-            if(state.type === 'text')
-            {
-                result = rsaencrypt(state.content, state.keycontent1, state.keycontent2)
-            }else{
-                const base64 = await convertFile(state.contentFile);
-                result = rsaencrypt(new Uint8Array(base64), state.keycontent1, state.keycontent2)
-            }
+            let result = rsaencrypt(state.type, state.content, state.keycontent1, state.keycontent2)
+            // if(state.type === 'text')
+            // {
+            //     result = rsaencrypt(state.content, state.keycontent1, state.keycontent2)
+            // }else{
+            //     const base64 = await convertFile(state.contentFile);
+            //     result = rsaencrypt(new Uint8Array(base64), state.keycontent1, state.keycontent2)
+            // }
             setState({
                 ...state,
                 result: result
             })
         }else{
-            let result
-            if(state.type === 'text')
-            {
-                result = rsadecrypt(state.content, state.keycontent1, state.keycontent2)
-            }else{
-                const base64 = await convertFile(state.contentFile);
-                result = rsadecrypt(new Uint8Array(base64), state.keycontent1, state.keycontent2)
-            }
+            let result = rsadecrypt(state.type, state.content, state.keycontent1, state.keycontent2)
+            // if(state.type === 'text')
+            // {
+            //     result = rsadecrypt(state.content, state.keycontent1, state.keycontent2)
+            // }else{
+            //     const base64 = await convertFile(state.contentFile);
+            //     result = rsadecrypt(new Uint8Array(base64), state.keycontent1, state.keycontent2)
+            // }
             setState({
                 ...state,
                 result: result
@@ -141,32 +147,64 @@ const RSAForm = ({algorithm}) => {
     }
 
     const download = () => {
-        var uint8
-        // var file
-        var newFileName
+        let type, ext, data
+        if(state.type === 'text')
+        {
+            type = 'text/plain'
+            ext = 'RSA-text.txt'
+            data = state.result
+        }
+        else
+        {
+            type = state.contentFile.type
+            ext = state.contentFile.name
+            if(state.method === 'Encrypt'){
+                data = state.result.split('\\x').map((i)=>{
+                    if(i === ''){
+                        return ''
+                    }else{
+                        return(bigIntConversion.hexToBigint(i).toString())
+                    }
+                })
+                console.log('download:'+ new Uint8Array(data))
+                data = new Uint8Array(data).buffer
+
+            }else{
+                data = state.result
+            }
+        }
+        const element = document.createElement("a");
+        const file = new Blob([data], {type: type});
+        element.href = URL.createObjectURL(file);
+        element.download = ext;
+        document.body.appendChild(element); // Required for this to work in FireFox
+        element.click();
+        // var uint8
+        // // var file
+        // var newFileName
         
-        uint8 = state.result
-        // file = state.contentFile
-        newFileName = 'RSA.txt'
+        // uint8 = state.result
+        // // file = state.contentFile
+        // newFileName = 'RSA.txt'
         
 
-        var data = new Int8Array(uint8).buffer;
+        // var data = new Int8Array(uint8).buffer;
 
-        var newFile = new Blob([data]);
-        if (window.navigator.msSaveOrOpenBlob)
-            window.navigator.msSaveOrOpenBlob(newFile, newFileName);
-        else {
-            var a = document.createElement("a"),
-                url = URL.createObjectURL(newFile);
-            a.href = url;
-            a.download = newFileName;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(function () {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            }, 0);
-        } 
+        // var newFile = new Blob([data], { type: 'text/plain' });
+        // if (window.navigator.msSaveOrOpenBlob)
+        //     window.navigator.msSaveOrOpenBlob(newFile, newFileName);
+        // else {
+        //     var a = document.createElement("a"),
+        //         url = URL.createObjectURL(newFile);
+        //     a.href = url;
+        //     a.download = newFileName;
+        //     document.body.appendChild(a);
+        //     a.click();
+        //     setTimeout(function () {
+        //         document.body.removeChild(a);
+        //         window.URL.revokeObjectURL(url);
+        //     }, 0);
+        // } 
     }
 
     return(
@@ -199,7 +237,7 @@ const RSAForm = ({algorithm}) => {
                         id='content'
                         label={state.method === 'Encrypt' ? 'Plain Text' : 'Cipher Text'}
                         multiline
-                        rows={3}
+                        rows={2}
                         variant="outlined"
                         fullWidth
                         onChange={(e)=>{handleChange(e)}}
@@ -266,9 +304,9 @@ const RSAForm = ({algorithm}) => {
                                 <FormControl component="fieldset">
                                     <FormLabel component="legend">Receiver {state.method === 'Encrypt' ? 'Public' : 'Private'} File</FormLabel>
                                 </FormControl>
-                                <label htmlFor="btn-upload-p">
+                                <label htmlFor="key-file-upload">
                                     <input
-                                        id="btn-upload-p"
+                                        id="key-file-upload"
                                         name="keyFile"
                                         hidden
                                         type="file"
@@ -336,22 +374,25 @@ const RSAForm = ({algorithm}) => {
                     </>
                 }
             </Paper>
-            <Grid item>
-                <TextField
-                    id='result'
-                    label='Result'
-                    multiline
-                    rows={2}
-                    variant="outlined"
-                    fullWidth
-                    // onChange={(e)=>{handleChange(e)}}
-                    inputProps={{
-                        name: 'result'
-                    }}
-                    disabled
-                    value={state.result}
-                    />
-            </Grid>
+            {
+                state.result &&
+                <Grid item>
+                    <TextField
+                        id='result'
+                        label='Result'
+                        multiline
+                        rows={2}
+                        variant="outlined"
+                        fullWidth
+                        // onChange={(e)=>{handleChange(e)}}
+                        inputProps={{
+                            name: 'result'
+                        }}
+                        disabled
+                        value={state.result}
+                        />
+                </Grid>
+            }
             <Grid item>
                 <Grid container spacing={2} direction="row" justify="center">
                     {
@@ -373,7 +414,7 @@ const RSAForm = ({algorithm}) => {
                     {
                         (state.result) &&
                         <Grid item xs={3}>
-                            <Button variant="contained" color="primary" fullWidth onClick={()=>download()}>DOWNLOAD CIPHER TEXT</Button>
+                            <Button variant="contained" color="primary" fullWidth onClick={()=>download()}>DOWNLOAD</Button>
                         </Grid>
                     }
                 </Grid>
