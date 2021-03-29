@@ -5,6 +5,8 @@ import Appbar from '../../components/appbar';
 import AlphabetForm from '../../components/alphabetForm';
 import styles from './styles';
 import AsciiForm from '../../components/asciiForm';
+import GenerateForm from '../../components/generateForm';
+import RSAForm from '../../components/rsaForm';
 // import { getMenu } from '../../utils';
 // import AsciiForm from '../../components/asciiForm';
 
@@ -62,6 +64,10 @@ const Home = () => {
                                                         <option value="6">RC4</option>
                                                         <option value="7">Modified RC4</option>
                                                     </optgroup>
+                                                    <optgroup label="RSA">
+                                                        <option value="8">Public and Private Key</option>
+                                                        <option value="9">Encryption and Decryption</option>
+                                                    </optgroup>
                                                 </NativeSelect>
                                             </FormControl>
                                         </Grid>
@@ -80,9 +86,19 @@ const Home = () => {
                                                 (
                                                     state.algorithm === 3 ||
                                                     state.algorithm === 6 ||
-                                                    state.algorithm === 7
+                                                    state.algorithm === 7 
                                                 ) ?
                                                 <AsciiForm algorithm={state.algorithm}/>
+                                                :
+                                                (
+                                                    state.algorithm === 8
+                                                ) ?
+                                                <GenerateForm algorithm={state.algorithm}/>
+                                                :
+                                                (
+                                                    state.algorithm === 9
+                                                )?
+                                                <RSAForm algorithm={state.algorithm}/>
                                                 :
                                                 <Typography></Typography>
                                             
